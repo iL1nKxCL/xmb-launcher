@@ -7,81 +7,115 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: url('https://i.imgur.com/WkRDu8o.gif') no-repeat center center fixed;
-            background-size: cover;
+            background: linear-gradient(45deg, #6a0dad, #1e90ff, #6a0dad);
+            background-size: 400% 400%;
+            animation: gradientAnimation 10s ease infinite;
             font-family: Arial, sans-serif;
             color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
-        .menu {
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        .menu-horizontal {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            margin-bottom: 20px;
+        }
+        .menu-vertical {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
         }
         .menu-item {
-            padding: 20px;
+            padding: 10px 20px;
             margin: 10px;
             background: rgba(0, 0, 0, 0.5);
             border-radius: 10px;
             cursor: pointer;
             transition: transform 0.3s ease;
+            text-align: center;
         }
-        .menu-item:hover {
-            transform: scale(1.2);
+        .menu-item:hover, .menu-item:focus {
+            transform: scale(1.3) translateY(-10px);
         }
-        #config-options {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px;
-            border-radius: 10px;
+        .game-item {
+            display: flex;
+            align-items: center;
         }
-        #config-options label {
+        .game-item img {
+            width: 50px;
+            height: 50px;
             margin-right: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="menu">
-        <div class="menu-item" onclick="showGames()">Juegos</div>
-        <div class="menu-item">Música</div>
-        <div class="menu-item">Videos</div>
-        <div class="menu-item" onclick="showConfig()">Configuración</div>
+    <div class="menu-horizontal">
+        <div class="menu-item" onclick="toggleMenu('games-list')" tabindex="0">Juegos</div>
+        <div class="menu-item" tabindex="0">Música</div>
+        <div class="menu-item" tabindex="0">Videos</div>
+        <div class="menu-item" onclick="toggleMenu('config-options')" tabindex="0">Configuración</div>
+        <div class="menu-item" onclick="exitApp()" tabindex="0">Salir</div>
     </div>
 
-    <div id="games-list" style="display:none;">
+    <div id="games-list" class="menu-vertical">
         <!-- Aquí se mostrarán los juegos -->
     </div>
 
-    <div id="config-options">
-        <div>
-            <label for="fullscreen">Pantalla completa:</label>
-            <input type="checkbox" id="fullscreen" onchange="toggleFullscreen()">
-        </div>
-        <div>
-            <label for="windowed">Ventana:</label>
-            <input type="checkbox" id="windowed" onchange="toggleWindowed()">
-        </div>
+    <div id="config-options" class="menu-vertical">
+        <div class="menu-item" onclick="addGame()">Agregar Juego</div>
+        <div class="menu-item" onclick="toggleFullscreen()">Pantalla Completa</div>
+        <div class="menu-item" onclick="toggleWindowed()">Ventana</div>
+        <div class="menu-item" onclick="changeBackgroundColor()">Cambiar Color de Fondo</div>
     </div>
 
     <script>
         const { ipcRenderer } = require('electron');
+        let games = [];
 
-        function showGames() {
-            const gamesList = document.getElementById('games-list');
-            gamesList.style.display = gamesList.style.display === 'none' ? 'block' : 'none';
-            gamesList.innerHTML = `
-                <div class="menu-item">Nuevo Juego 1</div>
-                <div class="menu-item">Nuevo Juego 2</div>
-                <!-- Puedes agregar más juegos aquí -->
-            `;
+        function toggleMenu(menuId) {
+            const menu = document.getElementById(menuId);
+            const allMenus = document.querySelectorAll('.menu-vertical');
+            allMenus.forEach(m => {
+                if (m.id !== menuId) {
+                    m.style.display = 'none';
+                }
+            });
+            menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
+            if (menuId === 'games-list') {
+                updateGamesList();
+            }
         }
 
-        function showConfig() {
-            const configOptions = document.getElementById('config-options');
-            configOptions.style.display = configOptions.style.display === 'none' ? 'block' : 'none';
+        function updateGamesList() {
+            const gamesList = document.getElementById('games-list');
+            gamesList.innerHTML = '';
+            games.forEach(game => {
+                const gameItem = document.createElement('div');
+                gameItem.className = 'menu-item game-item';
+                gameItem.innerHTML = `
+                    <img src="${game.icon}" alt="Icono del Juego">
+                    <span>${game.name}</span>
+                `;
+                gamesList.appendChild(gameItem);
+            });
         }
 
         function toggleFullscreen() {
@@ -91,6 +125,67 @@
         function toggleWindowed() {
             ipcRenderer.send('toggle-windowed');
         }
+
+        function addGame() {
+            ipcRenderer.send('add-game');
+        }
+
+        function exitApp() {
+            ipcRenderer.send('exit-app');
+        }
+
+        function changeBackgroundColor() {
+            const newColor = prompt('Ingrese el color de fondo (por ejemplo, #ff0066):');
+            if (newColor) {
+                document.body.style.background = newColor;
+            }
+        }
+
+        ipcRenderer.on('game-added', (event, game) => {
+            games.push(game);
+            updateGamesList();
+        });
+
+        document.addEventListener('keydown', (event) => {
+            const activeElement = document.activeElement;
+            const horizontalMenu = document.querySelector('.menu-horizontal');
+            const verticalMenus = document.querySelectorAll('.menu-vertical');
+
+            if (horizontalMenu.contains(activeElement)) {
+                const items = horizontalMenu.getElementsByClassName('menu-item');
+                let index = Array.prototype.indexOf.call(items, activeElement);
+                if (event.key === 'ArrowRight') {
+                    index = (index + 1) % items.length;
+                    items[index].focus();
+                } else if (event.key === 'ArrowLeft') {
+                    index = (index - 1 + items.length) % items.length;
+                    items[index].focus();
+                } else if (event.key === 'ArrowDown') {
+                    if (activeElement.textContent === 'Juegos') {
+                        toggleMenu('games-list');
+                    } else if (activeElement.textContent === 'Configuración') {
+                        toggleMenu('config-options');
+                    }
+                }
+            } else {
+                verticalMenus.forEach(menu => {
+                    if (menu.contains(activeElement)) {
+                        const items = menu.getElementsByClassName('menu-item');
+                        let index = Array.prototype.indexOf.call(items, activeElement);
+                        if (event.key === 'ArrowUp') {
+                            index = (index - 1 + items.length) % items.length;
+                            items[index].focus();
+                        } else if (event.key === 'ArrowDown') {
+                            index = (index + 1) % items.length;
+                            items[index].focus();
+                        } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                            document.querySelector('.menu-horizontal .menu-item[tabindex="0"]').focus();
+                            menu.style.display = 'none';
+                        }
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>

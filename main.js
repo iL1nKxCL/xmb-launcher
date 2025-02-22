@@ -1,15 +1,17 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 
 let win;
+let games = []; // Lista para almacenar los juegos añadidos
 
-function createWindow() {
+async function createWindow() {
     win = new BrowserWindow({
         width: 800,
         height: 600,
+        fullscreen: true,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false, // Asegúrate de que esto esté configurado correctamente
+            contextIsolation: false,
             enableRemoteModule: true,
         }
     });
@@ -44,8 +46,27 @@ ipcMain.on('toggle-windowed', () => {
     if (win.isFullScreen()) {
         win.setFullScreen(false);
         win.setSize(800, 600); // Tamaño de ventana en modo ventana
-    } else {
-        win.center();
-        alert('Modo ventana ya activado');
     }
+});
+
+// Función para agregar juegos desde la computadora
+ipcMain.on('add-game', async (event) => {
+    const result = await dialog.showOpenDialog(win, {
+        properties: ['openFile'],
+        filters: [{ name: 'Games', extensions: ['exe'] }]
+    });
+
+    if (!result.canceled) {
+        const filePath = result.filePaths[0];
+        const gameName = path.basename(filePath, '.exe');
+        // Aquí no usamos file-icon, solo añadimos el juego con un ícono predeterminado o sin ícono.
+        const gameIcon = 'default-game-icon.png'; // Puedes usar una imagen predeterminada si lo prefieres
+        games.push({ name: gameName, icon: gameIcon }); // Añadir el juego a la lista
+        event.sender.send('game-added', { name: gameName, icon: gameIcon });
+    }
+});
+
+// Evento para salir de la aplicación
+ipcMain.on('exit-app', () => {
+    app.quit();
 });
