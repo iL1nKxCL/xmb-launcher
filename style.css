@@ -1,0 +1,65 @@
+/* style.css */
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #333;
+    color: white;
+}
+
+#xmb-container {
+    width: 80%;
+    height: 100%;
+}
+
+#xmb-menu {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 50px;
+    font-size: 24px;
+}
+
+.xmb-item {
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.xmb-item:hover, .xmb-item.selected {
+    background-color: #555;
+    color: #ffcc00; /* El color de selección */
+    border-radius: 5px;
+}
+
+.xmb-item:focus {
+    outline: none;
+}
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(45deg, #ff0066, #ffcc00, #66ccff);
+    background-size: 400% 400%;
+    animation: gradientAnimation 10s ease infinite;
+    color: white;
+}
+
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
