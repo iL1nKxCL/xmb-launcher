@@ -6,7 +6,9 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #333;
+    background: linear-gradient(45deg, #ff0066, #ffcc00, #66ccff);
+    background-size: 400% 400%;
+    animation: gradientAnimation 10s ease infinite;
     color: white;
 }
 
@@ -39,17 +41,19 @@ body {
 .xmb-item:focus {
     outline: none;
 }
-body {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background: linear-gradient(45deg, #ff0066, #ffcc00, #66ccff);
-    background-size: 400% 400%;
-    animation: gradientAnimation 10s ease infinite;
-    color: white;
+
+#config-options {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+#config-options label {
+    margin-right: 10px;
 }
 
 @keyframes gradientAnimation {

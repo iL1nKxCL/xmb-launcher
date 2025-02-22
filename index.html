@@ -67,6 +67,8 @@
     </div>
 
     <script>
+        const { ipcRenderer } = require('electron');
+
         function showGames() {
             const gamesList = document.getElementById('games-list');
             gamesList.style.display = gamesList.style.display === 'none' ? 'block' : 'none';
@@ -83,18 +85,11 @@
         }
 
         function toggleFullscreen() {
-            if (document.getElementById('fullscreen').checked) {
-                document.documentElement.requestFullscreen();
-            } else {
-                document.exitFullscreen();
-            }
+            ipcRenderer.send('toggle-fullscreen');
         }
 
         function toggleWindowed() {
-            if (document.getElementById('windowed').checked) {
-                // Aquí puedes agregar la lógica para cambiar a modo ventana si es necesario
-                alert('Modo ventana activado');
-            }
+            ipcRenderer.send('toggle-windowed');
         }
     </script>
 </body>
