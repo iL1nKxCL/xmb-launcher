@@ -29,15 +29,73 @@
         .menu-item:hover {
             transform: scale(1.2);
         }
+        #config-options {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        #config-options label {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="menu">
-        <div class="menu-item">Juegos</div>
+        <div class="menu-item" onclick="showGames()">Juegos</div>
         <div class="menu-item">Música</div>
         <div class="menu-item">Videos</div>
-        <div class="menu-item">Configuración</div>
+        <div class="menu-item" onclick="showConfig()">Configuración</div>
     </div>
-    <script src="renderer.js"></script>
+
+    <div id="games-list" style="display:none;">
+        <!-- Aquí se mostrarán los juegos -->
+    </div>
+
+    <div id="config-options">
+        <div>
+            <label for="fullscreen">Pantalla completa:</label>
+            <input type="checkbox" id="fullscreen" onchange="toggleFullscreen()">
+        </div>
+        <div>
+            <label for="windowed">Ventana:</label>
+            <input type="checkbox" id="windowed" onchange="toggleWindowed()">
+        </div>
+    </div>
+
+    <script>
+        function showGames() {
+            const gamesList = document.getElementById('games-list');
+            gamesList.style.display = gamesList.style.display === 'none' ? 'block' : 'none';
+            gamesList.innerHTML = `
+                <div class="menu-item">Nuevo Juego 1</div>
+                <div class="menu-item">Nuevo Juego 2</div>
+                <!-- Puedes agregar más juegos aquí -->
+            `;
+        }
+
+        function showConfig() {
+            const configOptions = document.getElementById('config-options');
+            configOptions.style.display = configOptions.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleFullscreen() {
+            if (document.getElementById('fullscreen').checked) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function toggleWindowed() {
+            if (document.getElementById('windowed').checked) {
+                // Aquí puedes agregar la lógica para cambiar a modo ventana si es necesario
+                alert('Modo ventana activado');
+            }
+        }
+    </script>
 </body>
 </html>
